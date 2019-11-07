@@ -1,0 +1,53 @@
+{% extends "base.twig" %}
+
+{% block title %}New Post{% endblock %}
+
+{% block newPostLinkStatus %} {{ pageStatus }}{% endblock %}
+
+{% block content %}
+<style type="text/css">
+</style>
+<script src="https://cdn.ckeditor.com/4.12.1/standard/ckeditor.js"></script>
+
+<h2>Create New Post<h2>
+
+<form action="/new" method="POST">
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" id="publicCheck" type="radio" name="accessLevel" value="1">
+        <label class="form-check-label" for="publicCheck">Public</label>
+    </div>
+    <div class="form-check form-check-inline">
+       <input class="form-check-input" type="radio" name="accessLevel" id="privateCheck" value="2">
+       <label class="form-check-label" for="privateCheck">Private</label>
+    </div>
+    <div class="form-group mt-3">
+        <input type="text" class="form-control mb-3" name="title" placeholder="Title" required>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="categorySelect">Categories</label>
+          </div>
+          <select class="custom-select" name="category" id="categorySelect" required>
+            <option selected>Choose...</option>
+            <option value="politics">Politics</option>
+            <option value="culture">Culture</option>
+            <option value="news">News</option>
+            <option value="science">Science</option>
+            <option value="technology">Technology</option>
+            <option value="arts">Arts</option>
+            <option value="religion">Religion</option>
+            <option value="psychology">Psychology</option>
+            <option value="health">Health & Wellness</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <textarea name="body" id="editor"></textarea>
+        <input type="submit" class="btn btn-lg btn-block btn-info mt-2" value="Publish">
+    </div>
+    {{ csrf.field | raw }}
+</form>
+
+<script type="text/javascript">
+CKEDITOR.replace('editor');
+</script>
+
+{% endblock %}

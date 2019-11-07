@@ -1,0 +1,71 @@
+{% extends "base.twig" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block signupLinkStatus %} {{ pageStatus }}{% endblock %}
+
+{% block content %}
+
+<div class="mt-2">
+    <form action="/signup" method="POST" class="text-center">
+        <div class="container col-lg-6 mx-auto border border-info p-5 rounded shadow" style="height:700px !important;">
+            <h1 class="text-info mb-3">Sign Up</h1>
+            <span class="text-secondary">It's free and only takes a minute.</span>
+
+            <div class="form-group mt-5">
+            {{ flash | raw }}
+                    {% if errors.username.exists %}
+                    <span class="form-text text-danger mb-3">{{ errors.username.exists }}</span>
+                    {% else %}
+                    <span class="form-text text-danger mb-3">{{ errors.username | first }}</span>
+                    {% endif %}
+                <input type="text" class="form-control form-control-lg {{ errors.username ? ' is-invalid'}}" name="username" value="{{ old.username }}" placeholder="Username" required>
+            </div>
+
+            <div class="form-group mt-3">
+                {% if errors.email.exists %}
+                <span class="form-text text-danger mb-3">{{ errors.email.exists }}</span>
+                {% else %}
+                <span class="form-text text-danger mb-3">{{ errors.email | first }}</span>
+                {% endif %}
+                <input type="email" class="form-control form-control-lg {{ errors.email ? ' is-invalid'}}" name="email" value="{{ old.email }}" placeholder="Email" required>
+            </div>
+
+            <div class="form-group mt-3">
+                {% if errors.password %}
+                <span class="form-text text-danger mb-3">{{ errors.password | first }}</span>
+                {% endif %}
+                <input type="password" class="form-control form-control-lg {{ errors.password ? ' is-invalid'}}" name="password" placeholder="Password">
+            </div>
+
+            <div class="form-group mt-3">
+                {% if errors.passconfirm %}
+                <span class="form-text text-danger mb-3">{{ errors.passconfirm }}</span>
+                {% endif %}
+                <input type="password" class="form-control form-control-lg {{ errors.passconfirm ? ' is-invalid'}}" name="passconfirm" placeholder="Confirm Password">
+            </div>
+
+            {{ csrf.field | raw }}
+
+            <div class="form-group mt-4">
+                <button type="submit" id="signup" class="btn btn-lg btn-block btn-success form-control form-control-lg">
+                    Sign Up
+                </button>
+            </div>
+
+            <div class="mt-4">
+                <small class="text-secondary">By clicking the Sign Up button you agree to our Terms & Conditions, and Privacy Policy.
+                Already have an account? <a href="/login">Login here</a></small>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+$("#signup").click(function() {
+    $(this).html(
+        `<span class="spinner-border spinner-border" role="status" aria-hidden="true"></span> Creating account...`
+    );
+});
+{% endblock %}

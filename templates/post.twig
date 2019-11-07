@@ -1,0 +1,159 @@
+{% extends "base.twig" %}
+
+{% block title%}{{ post.title|raw }}{% endblock %}
+
+{% block content %}
+
+
+
+<div class="mx-auto mt-3 col-lg-9 post">
+    <h1>{{ post.title|raw }}</h1>
+
+    <div class="mb-5 mt-4 pb-5 post-author-section border-bottom">
+        <div class="d-flex">
+            {% if author.picture %}
+            <a class="username text-dark" href="/profile/{{ post.author }}?page=1">
+                <img class="rounded-circle {% if post.category %}mt-2{% endif %}" src="{{ author.picture }}" style="width:78px; height:78px;" title="{{ post.author }}" />
+            </a>
+            {% else %}
+            <div class="rounded-circle bg-info" style="width:75px; height:75px;"></div>
+            {% endif %}
+            <div class="ml-2">
+                <span class="text-secondary" style="font-size:0.83em; color:seagreen !important;">
+                    <a class="username text-dark" href="/profile/{{ post.author }}?page=1">
+                    {{ post.author }}</a>
+                    {% if auth.username != post.author %}
+                        {% if following %}
+                        <a class="btn btn-sm btn-outline-success ml-2 mt-2" id="unfollow" style="padding: 0 5px 0 5px !important; margin-bottom:11px;"
+                        href="/{{ post.author }}/posts/{{ post.id }}?unfollow=true">Following</a>
+                        {% else %}
+                        <a class="btn btn-sm btn-outline-success mt-2" id="follow" style="padding: 0 5px 0 5px !important; margin-bottom:11px;"
+                        href="/{{ post.author }}/posts/{{ post.id }}?follow=true">Follow</a>
+                        {% endif %}
+                    {% endif %}
+                </span><br>
+                <small class="text-info" style="font-size:0.9rem !important;">{{ post.date|date('D F j Y') }}</small>
+                {% if post.category %}
+                <br><small class="text-info" style="font-size:0.9rem !important; padding-top:0;">Published in {{ post.category|capitalize }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-4 border-bottom">
+        {{ post.body|raw }}
+    </div>
+
+    <div class="mt-5 mb-5" id="comments">
+        <h2 style="display:inline-block;">Comments</h2><span> ({{ comments|length }})</span>
+        <div class="row d-flex justify-content-end">
+            <div class="col-lg-11 mt-2">{{ flash|raw }}</div>
+        </div>
+
+        <div class="comments">
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="mt-2 mb-2">
+                    <div class="card-body row">
+                        <div class="col-lg-1 pt-1">
+                            <a href="/profile/{{ comment.author }}?page=1"><img src="{{ comment.picture }}"
+                            class="rounded-circle bg-info comment-picture" style="width:41px; height:41px;" title="{{ comment.author }}"></a>
+                        </div>
+                        <div class="col mt-1 ml-2 pb-2 comment-body rounded-lg" style="background-color:#F2F3F5;">
+                            <div class="row p-3">
+                                <span class="commentId hidden">{{ comment.commentId }}</span>
+                                <span class="postId hidden">{{ id }}</span>
+                                <p class="pr-5 pl-2">
+                                <span><a class="text-primary author pr-2" href="/profile/{{ comment.author }}?page=1" style="text-decoration:none;">{{ comment.author }}</a></span>
+                                <span class="body">{{ comment.body }}</span></p>
+                            </div>
+                            <div class="row pl-3 d-flex justify-content-between">
+                                <span>
+                                    <small class="text-info pl-2 post-author-section">{{ comment.date|date('D F j Y') }}</small>
+                                </span>
+                                <span>
+                                    {% if comment.author == user.username %}
+                                    <a class="btn btn-link pr-3 pb-3" href="/{{ comment.author }}/posts/{{ id }}?delete_comment=true&comment_id={{ comment.commentId }}&author={{ comment.author }}" onclick="return confirm('Are you sure you want to permanently delete this comment?');">Delete</a>
+                                    <button class="edit-comment btn btn-link pr-3 pb-3">Edit</a>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% endif %}
+        </div>
+
+        {% if auth %}
+        <div class="row d-flex justify-content-end">
+            <div class="col-lg-11">
+                <form class="mt-5" method="POST" action="/{{post.author}}/posts/{{post.id}}?add_comment=true">
+                    <div class="form-group mt-4">
+                        <textarea class="form-control form-control-lg" name="comment" placeholder="Write a response..." style="overflow:auto;resize:none" required></textarea>
+                        <input class="form-control form-control-lg bg-info text-light mt-2" type="submit" value="Publish" style="background-color:seagreen !important;" />
+                    </div>
+                    {{ csrf.field | raw }}
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+let body;
+let author;
+let toggle2 = false;
+$('.edit-comment').click(function (e) {
+    const editBtns = $('.comments').find('.edit-comment');
+    if (!toggle2) {
+        editBtns.addClass('disabled');
+        $(e.target).removeClass('disabled');
+        const href = window.location.pathname;
+        const action = href + '?edit_comment=true';
+        const parent = $(e.target).parent().parent().prev();
+        const postId = parent.find('.postId').text();
+        const commentId = parent.find('.commentId').text();
+        const span = parent.find('span');
+        body = parent.find('p').find('.body').text();
+        author = span.find('a').text();
+        $(e.target).parent().parent().prev().html(
+            `<span><a class="text-primary author" href="/profile/${author}?page=1" style="text-decoration:none;">${author}</a></span>
+            <form method="POST" action="${action}">
+                <div class="form-group mt-3">
+                    <input type="hidden" value="${author}" name="username" />
+                    <input type="hidden" value="${postId}" name="postid" />
+                    <input type="hidden" value="${commentId}" name="commentid" />
+                    <textarea name="body" class="form-control" autofocus cols="90" rows="4">${body}</textarea>
+                    <button type="submit" class="btn btn-sm btn-secondary mt-2">Update</button>
+                </div>
+                {{ csrf.field | raw }}
+            </form>`
+        );
+        $(e.target).text('Cancel');
+        toggle2 = true;
+    } else if (toggle2) {
+        editBtns.removeClass('disabled');
+        $(e.target).parent().parent().prev().html(
+            `<p class="pr-5 pl-2">
+            <span><a class="text-primary author pr-2" href="/profile/${author}?page=1" style="text-decoration:none;">${author}</a></span>
+            <span class="body">${body}</span></p>`
+        );
+        $(e.target).text('Edit');
+        toggle2 = false;
+    }
+});
+
+$('#unfollow').hover(function() {
+    $(this).text('unfollow');
+    $(this).removeClass('btn-outline-success').addClass('btn-outline-danger')},
+    function() {
+        $(this).removeClass('btn-outline-danger').addClass('btn-outline-success');
+        $(this).text('following');
+    }
+);
+{% endblock %}

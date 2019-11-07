@@ -1,0 +1,28 @@
+{% extends "base.twig" %}
+
+{% block title%}Login{% endblock %}
+
+{% block loginLinkStatus %} {{ pageStatus }} {% endblock %}
+
+{% block content %}
+<div class="mt-5">
+    <form action="/login" method="POST" class="text-center">
+        <div class="container col-lg-7 mx-auto border border-info p-5 rounded shadow" style="height:465px !important;">
+            <div class="mt-4">{{ flash|raw }}</div>
+            <h1 class="text-info mb-3">Login</h1>
+            <div class="form-group mx-auto mt-5">
+                <input type="text" class="form-control form-control-lg" name="email" placeholder="Email" required>
+                <input type="password" class="form-control form-control-lg mt-3" name="password" placeholder="Password">
+                <div class="form-check d-flex justify-content-start mt-3">
+                  <input class="form-check-input mt-2" type="checkbox" id="stayLoggedIn">
+                  <label class="form-check-label" for="stayLoggedIn">
+                    <small>Keep me logged in</small>
+                  </label>
+                </div>
+                {{ csrf.field | raw }}
+                <input type="submit" class="form-control form-control-lg btn btn-lg btn-block btn-success mt-5" value="Login" />
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

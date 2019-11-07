@@ -1,0 +1,188 @@
+{% extends "base.twig" %}
+
+{% block title %} Profile | {{ user.username }} {% endblock %}
+
+{% block content %}
+
+<div class="col-5 mb-4">{{ flash|raw }}</div>
+<div class="container mx-auto">
+    <div class="container row d-flex justify-content-between pb-5 border-bottom">
+
+        <div class="col-md-8">
+            <span><h3 class="font-weight-bold" style="display:inline-block">{{ user.username }}</h3>
+                {% if user.owner %}
+                <button id="editProfile" class="btn btn-sm btn-outline-success ml-3"
+                style="padding: 0 5px 0 5px !important; margin-bottom:11px;">Edit profile</button>
+                {% elseif auth and not user.owner %}
+                    {% if following %}
+                    <a href="/profile/{{ user.username }}?unfollow=true" id="unfollow" class="btn btn-sm btn-outline-success ml-3"
+                    style="padding: 0 5px 0 5px !important; margin-bottom:11px;">following</a>
+                    {% else %}
+                    <a href="/profile/{{ user.username }}?follow=true" id="follow" class="btn btn-sm btn-outline-success ml-3"
+                    style="padding: 0 5px 0 5px !important; margin-bottom:11px;">follow</a>
+                    {% endif %}
+                {% endif %}
+
+                    <div id="about">
+                        {% if user.about %}
+                        <p class="text-muted">{{ user.about }} <span>&#9749;</span></p>
+                        {% else %}
+                        <p class="text-dark">{{ user.username }} hasn't written anything yet, but we're sure they're just awesome.</p>
+                        {% endif %}
+                    </div>
+            </span>
+        </div>
+
+
+        <div class="col d-flex justify-content-center">
+            <style type="text/css">
+            @media (max-width:576px) {
+                #profilePic {
+                    display: none;
+                }
+            }
+            </style>
+            <div id="profilePic" class="profile-pic-area">
+                {% if user.picture %}
+                <img class="rounded-circle bg-info profile-pic-area" src="{{ user.picture }}" />
+                {% if user.owner %}
+                <br>
+                <button id="picUpload" class="btn btn-sm btn-link ml-2" data-toggle="modal" data-target="#uploadModal">
+                    <small>Upload picture</small>
+                </button>
+                {% endif %}
+                {% else %}
+                <div class="profile-pic-area bg-info rounded-circle">
+                    <h2 class="text-center" style="padding-top:35px;">{{ user.username | first | capitalize }}</h2>
+                </div>
+                    {% if user.owner %}
+                    <button id="picUpload" class="btn btn-sm btn-link ml-2" data-toggle="modal" data-target="#uploadModal">
+                        <small>Upload picture</small>
+                    </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container row mt-4">
+
+        <div class="col-lg-8 mt-3">
+
+            {% if not user.posts %}
+                <h5>You haven't written any posts yet.</h5>
+            {% else %}
+                {% for post in user.posts %}
+                <article class="ml-2">
+                    <h5 class=" mb-0"><a class="text-dark" href="/{{ user.username }}/posts/{{ post.id }}">{{ post.title|raw }}</a></h5>
+                    <span class="text-muted">{{ post.body|slice(0, 80)|raw }}...</span><br>
+                    <p class="text-info mb-4">
+                        <small><i class="far fa-clock mr-1"></i>{{ post.author }}, {{ post.date|date('D F j Y') }} <span></small>
+                    </p>
+                </article>
+                {% endfor %}
+                {% if paginated %}
+                <nav class="mt-5">
+                    <ul class="pagination pagination-sm">
+                    {% if page > 1 %}
+                    <li class="page-item"><a class="page-link text-info" href="/profile/{{ user.username }}?page={{ page - 1}}">Previous</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link text-secondary">Previous</a></li>
+                    {% endif %}
+
+                    {% for i in 1..pages %}
+                    {% if page == loop.index %}
+                    <li class="page-item active"><a class="page-link" href="/profile/{{ user.username }}?page={{ loop.index }}">{{ loop.index }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link text-info" href="/profile/{{ user.username }}?page={{ loop.index }}">{{ loop.index }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page < pages %}
+                    <li class="page-item"><a class="page-link text-info" href="/profile/{{ user.username }}?page={{ page + 1}}">Next</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link text-secondary">Next</a></li>
+                    {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Upload profile pic</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/profile/{{ user.username }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="profilePic" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" class="btn btn-success" value="Upload" />
+        {{ csrf.field | raw }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{#
+https://forge.medium.com/youre-not-lazy-bored-or-unmotivated-35891b1f3376
+#}
+
+{% endblock %}
+
+{% block script %}
+let toggle = false;
+$('#editProfile').click(function() {
+    if (!toggle) {
+        $('#about').html(
+            `<form action="/profile/{{ user.username }}" method="post">
+                <div class="form-group row no-gutters mt-2" style="width: 50% !important;">
+                    <div class="col-9 mr-2">
+                        <input class="form-control form-control-sm" type="text" id="about" name="about" placeholder="Tell us about yourself!" />
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                    </div>
+                </div>
+                {{ csrf.field | raw }}
+            </form>`
+        );
+        $(this).removeClass('btn-outline-success').addClass(' btn-outline-danger').text('Cancel');
+        toggle = true;
+    } else {
+        $('#about').html(
+            `{% if user.about %}
+            <p class="text-muted">{{ user.about }}</p>
+            {% endif %}`
+        );
+        $(this).removeClass('btn-outline-danger').addClass(' btn-outline-success').text('Edit profile');
+        toggle = false;
+    }
+});
+$('#profilePic').hover(function() {
+    $('#picUpload').css('display', 'inline-block')},
+    function() {
+        $('#picUpload').css('display', 'none')
+    }
+);
+$('#unfollow').hover(function() {
+    $(this).text('unfollow');
+    $(this).removeClass('btn-outline-success').addClass('btn-outline-danger')},
+    function() {
+        $(this).removeClass('btn-outline-danger').addClass('btn-outline-success');
+        $(this).text('following');
+    }
+);
+{% endblock %}

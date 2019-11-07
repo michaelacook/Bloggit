@@ -1,0 +1,30 @@
+{% extends "base.twig" %}
+
+{% block title %} Category {% endblock %}
+
+{% block content %}
+<h2>Latest in <span class="font-italic">{{ category|capitalize }}</span></h2>
+
+{% if posts %}
+
+{% for post in posts %}
+<div class="mt-5">
+    <h4 class="mb-3">
+        <a href="/{{ post.author }}/posts/{{ post.id }}">{{ post.title|raw }}</a>
+    </h4>
+    <span class="text-secondary">{{ post.body|slice(0, 52)|raw }}...</span><br>
+    <div class="pb-3 border-bottom" style="max-width:70%;">
+        <small>
+            <a class="text-info mr-1" href="/profile/{{ post.author }}?page=1">{{ post.author }}</a>
+            <span class="text-secondary">•</span>  <span class="ml-1 mr-1 text-muted">{{ post.published_on|date('F j Y') }}</span> <span class="text-secondary">•</span>
+            <span class="ml-1">Published in {{ category|capitalize }}</span>
+        </small>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<p class="mt-5 text-muted">There are no recent posts in {{ category|capitalize }}.</p>
+{% endif %}
+
+{% endblock %}

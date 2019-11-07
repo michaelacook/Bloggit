@@ -1,0 +1,29 @@
+{% extends "base.twig" %}
+
+{% block title%}Search Results{% endblock %}
+
+{% block content %}
+<h2>Search results</h2>
+
+<p class="mt-4">Results for "{{ search_terms }}":</p>
+
+<div class="mt-5">
+    {% if results %}
+
+    {% for post in results %}
+    <h5 class="mb-3">
+        <a href="/{{ post.author }}/posts/{{ post.post_id }}">{{ post.title }}</a>
+    </h5>
+    <span class="text-secondary">{{ post.body|slice(0, 52)|raw }}...</span><br>
+    <small>
+        <a class="text-info mr-1" href="profile/{{ post.author }}?page=1">{{ post.author }}</a>
+        {{ post.published_on|date('D F j Y') }}
+    </small>
+
+    {% endfor %}
+
+    {% else %}
+    <p>No results</p>
+    {% endif %}
+</div>
+{% endblock %}

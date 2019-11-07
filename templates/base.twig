@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Red+Hat+Text&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic|Red+Hat+Text&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Khula&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Crimson+Text&display=swap" rel="stylesheet">
+    <style type="text/css">
+    @media (max-width:576px) {
+        #searchBtn {
+            display: none;
+        }
+    }
+    @media (max-width:991px) {
+        .comment-picture {
+            display: none;
+        }
+    }
+    .wrapper {
+        min-height: calc(100vh - 56px);
+    }
+    .form-check-label {
+        font-size:16px !important;
+    }
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
+    .post {
+        font-size: 24px !important;
+        font-family: 'Crimson Text', serif;
+        line-height: 170%;
+    }
+    .first-letter {
+      font-size: 90px;
+      line-height: 70px;
+      vertical-align: top;
+      float: left;
+      margin-right: 10px;
+    }
+    .post-author-section {
+        line-height: 115%;
+        font-family: 'Roboto', sans-serif;
+    }
+    .post p {
+        margin-bottom: 40px;
+    }
+    .profile-pic-area {
+        width:115px !important;
+        height:115px !important;
+    }
+    .username {
+        text-decoration:none !important;
+    }
+    .username:hover {
+        color: #seagreen !important;
+    }
+    .comment-body {
+        line-height: 115%;
+    }
+    .hidden {
+        display:none;
+    }
+    #picUpload {
+        display: none;
+    }
+    a {
+        text-decoration:none;
+    }
+    </style>
+    <title>
+    {% block title %}
+    {% endblock%} | Bloggit
+    </title>
+  </head>
+  <body>
+    <div class="wrapper d-flex flex-column">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow mb-5">
+            <div class="container d-flex justify-content-between">
+                <a class="navbar-brand pt-1" href="/"><i class="fas fa-frog fa-lg mr-2 text-success"></i>Bloggit</a>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav">
+                      {% if not auth %}
+                      <li class="nav-item">
+                          <a class="nav-link {% block signupLinkStatus %}{% endblock %}" href="/signup">Sign Up</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link {% block loginLinkStatus %}{% endblock %}" href="/login">Login</a>
+                      </li>
+                      {% endif %}
+
+                      <li class="mt-1">
+                          <div class="btn-group dropright">
+                              <button class="btn btn-dark btn-sm dropdown-toggle pb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Categories
+                              </button>
+                              <div class="dropdown-menu">
+                                  <a class="dropdown-item" href="/categories/politics">Politics</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/culture">Culture</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/news">News</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/science">Science</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/technology">Technology</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/arts">Arts</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/religion">Religion</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/psychology">Psychology</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/health-wellness">Health & Wellness</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" href="/categories/other">Other</a>
+                                  <div class="dropdown-divider"></div>
+                              </div>
+                         </div>
+                      </li>
+                 </ul>
+                </div>
+
+                <div class="d-flex justify-content-between" id="rightSide">
+                    <form action="/search" method="GET" class="form-inline my-2 my-lg-0">
+                      <input class="form-control form-control-sm mr-sm-2" type="search" name="search_terms" placeholder="Search" aria-label="Search">
+                      <button class="btn btn-sm btn-outline-success my-2 my-sm-0" id="searchBtn" type="submit">Search</button>
+                    </form>
+                    {% if auth %}
+                    <div class="btn-group ml-2">
+                        <button class="btn btn-dark btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          {{ auth.username }}
+                        </button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="/profile/{{ auth.username }}?page=1">{{ auth.username }}</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="/new">New Post</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" id="account" href="/account?page=1">Account</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" id="logout" href="/login?logout=true">Logout</a>
+                        </div>
+                   </div>
+                   {% endif %}
+                </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="container">
+        {% block content %}
+        {% endblock %}
+        </div>
+
+    <!-- FOOTER -->
+    </div>
+    <footer class="py-3" style="background-color:#D3DCE3;">
+        <div class="container text-center text-dark">
+            Site built by &copy; {{ "now"|date('Y') }} Michael Cook using <a href="https://www.php.net" target="_blank">PHP</a> and <a href="http://www.slimframework.com" target="_blank">Slim micro-framework</a>
+        </div>
+    </footer>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+    $('#logout').click(function() {
+        if (confirm('Are you sure you want to logout?')) {
+            return true;
+        }
+        return false;
+    });
+    {% block script%}
+    {% endblock %}
+    </script>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+{% extends "base.twig" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<div class="col-lg-10 mx-auto">
+    <nav>
+        <div class="d-flex flex-wrap flex-sm-row justify-content-between">
+            <a class="text-info" href="/categories/politics">Politics</a>
+            <a class="text-info" href="/categories/culture">Culture</a>
+            <a class="text-info" href="/categories/news">News</a>
+            <a class="text-info" href="/categories/science">Science</a>
+            <a class="text-info" href="/categories/technology">Tech</a>
+            <a class="text-info" href="/categories/arts">Arts</a>
+            <a class="text-info" href="/categories/religion">Religion</a>
+            <a class="text-info" href="/categories/psychology">Psychology</a>
+            <a class="text-info" href="/categories/health-wellness">Health & Wellness</a>
+        </div>
+    </nav>
+
+
+    <div class="row mt-5">
+
+        <div class="col-md">
+            <div class="card shadow">
+                <div class="card-body pb-5">
+                    <h4 class="card-title mt-3">What is Bloggit? <i class="fas fa-pencil-alt ml-2"></i></h4>
+                    <p class="card-text text-muted">
+                        Bloggit is a free blogging app that allows you to publish,
+                        share and read content in a variety of categories, or create private
+                        content that only you can view. Bloggit is a space for sharing
+                        all kinds of ideas, perspectives and experiences for anyone, anywhere,
+                        for free!
+                    </p>
+                </div>
+            </div>
+
+        {% if auth %}
+        <div id="newsfeed" class="mb-5" style="margin-top:125px;">
+            {% for user in newsfeed %}
+            <h5 class="text-dark mt-5 mb-3">Because you follow
+            <a href="/profile/{{ user[0].author }}?page=1"><img src="../../user_images/{{ user.picture }}"
+            class="rounded-circle ml-1" style="height:29px; width:29px;" /></a><a class="text-info ml-1" href="/profile/{{ user[0].author }}?page=1" style="text-decoration:none;">{{ user[0].author }}</a>:</h5>
+                {% for item in user|slice(0, 4) %}
+                <div class="mt-4">
+                    <a class="text-secondary" href="/{{ item.author }}/posts/{{ item.post_id }}">
+                        <h5>{{ item.title|raw }}</h5>
+                    </a>
+                    <span class="text-muted">{{ item.body|slice(0, 80)|raw }}...</span><br>
+                    <p class="text-info mb-4">
+                        <small><i class="far fa-clock mr-1"></i>{{ item.date|date('D F j Y') }} <span></small>
+                    </p>
+                </div>
+                {% endfor %}
+
+                <div class="hidden" id="morePosts">
+                {% for item in user|slice(5, 10) %}
+                <div class="mt-4">
+                    <a class="text-secondary" href="/{{ item.author }}/posts/{{ item.post_id }}">
+                        <h5>{{ item.title|raw }}</h5>
+                    </a>
+                    <span class="text-muted">{{ item.body|slice(0, 80)|raw }}...</span><br>
+                    <p class="text-info mb-4">
+                        <small><i class="far fa-clock mr-1"></i>{{ item.date|date('D F j Y') }} <span></small>
+                    </p>
+                </div>
+                {% endfor %}
+                </div>
+                {% if user|length > 5 %}
+                <button class="btn btn-link text-info pl-0" id="morePostsBtn">More...</button>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+let toggle = false;
+
+$('#morePostsBtn').click(function(e) {
+    if (!toggle) {
+        toggle = true;
+        $(this).text('Less');
+        $('#morePosts').removeClass('hidden');
+    } else {
+        toggle = false;
+        $(this).text('More...');
+        $('#morePosts').addClass('hidden');
+    }
+});
+{% endblock %}

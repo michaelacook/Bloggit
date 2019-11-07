@@ -1,0 +1,246 @@
+{% extends "base.twig" %}
+
+{% block title %} Account {{ user.username }} {% endblock %}
+
+{% block content %}
+
+{{ data|raw }}
+
+<div class="col">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Edit Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="posts-tab" data-toggle="tab" href="#posts" role="tab" aria-controls="posts" aria-selected="false">Posts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="following-tab" data-toggle="tab" href="#following" role="tab" aria-controls="following" aria-selected="false">Following</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="followers-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="followers" aria-selected="false">Followers</a>
+          </li>
+    </ul>
+
+
+    <div class="tab-content" id="myTabContent">
+
+      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+          <div class="mt-4">{{ flash|raw }}</div>
+          <div class="row">
+              <div class="col-lg-6">
+                   <div class="mt-5">
+                       <h4>Change Username</h4>
+                       <form action="/account" method="POST">
+                       {{ csrf.field | raw }}
+                           <div class="row">
+                               <div class="col-md-8">
+                                   <input type="text" class="form-control" name="newUsername" placeholder="New Username" required />
+                               </div>
+                           </div>
+                           <div class="row">
+                               <div class="col-md-8 pb-5 border-bottom">
+                                   <input type="text" class="form-control mt-3" name="confirmUsername" placeholder="Confirm Username" required />
+                                   <input type="submit" class="btn btn-sm btn-success mt-2" value="Save" />
+                               </div>
+                           </div>
+                       </form>
+                   </div>
+                   <div class="mt-5">
+                       <h4>Change Password</h4>
+                       <form action="/account" method="POST">
+                       {{ csrf.field | raw }}
+                           <div class="row">
+                               <div class="col-md-8">
+                                   <input type="password" class="form-control" name="newPassword" placeholder="New Password" required />
+                               </div>
+                           </div>
+                           <div class="row">
+                               <div class="col-md-8 pb-5 border-bottom">
+                                   <input type="password" class="form-control mt-3" name="confirmPassword" placeholder="Confirm Password" required />
+                                   <input type="submit" class="btn btn-sm btn-success mt-2" value="Save" />
+                               </div>
+                           </div>
+                       </form>
+                   </div>
+               </div>
+
+               <div class="col">
+                   <div class="mt-5">
+                       <h4>Change Email</h4>
+                       <form action="/account" method="POST">
+                       {{ csrf.field | raw }}
+                           <div class="row">
+                               <div class="col-md-8">
+                                   <input type="email" class="form-control" name="newEmail" placeholder="New Email" required />
+                               </div>
+                           </div>
+                           <div class="row">
+                               <div class="col-md-8 pb-5 border-bottom">
+                                   <input type="email" class="form-control mt-3" name="confirmEmail" placeholder="Confirm Email" required />
+                                   <input type="submit" class="btn btn-sm btn-success mt-2" value="Save" />
+                               </div>
+                           </div>
+                       </form>
+                   </div>
+                   <div class="mt-5">
+                       <h4>Delete Account</h4>
+                       <form action="/account" method="POST">
+                       {{ csrf.field | raw }}
+                           <div class="row">
+                               <div class="col-md-8">
+                                   <input type="password" class="form-control" name="delete" placeholder="Password" required />
+                               </div>
+                           </div>
+                           <div class="row">
+                               <div class="col-md-8 pb-5 border-bottom">
+                                   <input type="password" class="form-control mt-3" name="confirmDelete" placeholder="Confirm" required />
+                                   <input type="submit" onclick="return confirm('Are you sure you want to permanently delete your account?')"
+                                   class="btn btn-sm btn-danger mt-2" value="Delete" />
+                               </div>
+                           </div>
+                       </form>
+                   </div>
+               </div>
+           </div>
+      </div>
+
+
+      <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="contact-tab">
+
+          <div class="mt-2">
+              <div class="row">
+                <div class="col-9">
+                    <div class=" mt-3 mb-5">{{ flash|raw }}</div>
+                    <ul class="list-group">
+                       {% for post in posts %}
+                       <li class="list-group-item d-flex justify-content-between">
+                          <a class="text-secondary" style="text-decoration:none;" href="/{{ post.author }}/posts/{{ post.id }}"><h5>{{ post.title|raw }}</h5></a>
+                          <div class="d-flex justify-content-between">
+
+                               <div>
+                                   <form action="/account" method="post">
+                                       {{ csrf.field | raw }}
+                                       <div class="form-group">
+                                           <select class="form-control form-control-sm" name="accessLevel" onchange="this.form.submit()">
+                                             <option value="1" {% if post.accessLevel == "1" %} selected {% endif %}>Public</option>
+                                             <option value="2" {% if post.accessLevel == "2" %} selected {% endif %}>Private</option>
+                                           </select>
+                                           <input type="hidden" name="author" value="{{ post.author }}" />
+                                           <input type="hidden" name="postId" value="{{ post.id }}" />
+                                       </div>
+                                   </form>
+                               </div>
+
+                               <div class="ml-2 mr-2">
+                                   <a class="btn btn-sm btn-outline-success" href="#">Edit</a>
+                                </div>
+
+                               <div>
+                                   <a class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to permanently delete this post?');" href="/account?delete_post=true&author={{ post.author }}&id={{ post.id }}">Delete</a>
+                               </div>
+                          </div>
+                       </li>
+                       {% endfor %}
+                    </ul>
+                </div>
+              </div>
+
+              {% if paginated %}
+              <nav class="mt-4">
+                  <ul class="pagination">
+                  {% if page > 1 %}
+                  <li class="page-item"><a class="page-link text-info" href="/account?page={{ page - 1}}">Previous</a></li>
+                  {% else %}
+                  <li class="page-item disabled"><a class="page-link text-secondary">Previous</a></li>
+                  {% endif %}
+
+                  {% for i in 1..pages %}
+                  {% if page == loop.index %}
+                  <li class="page-item active"><a class="page-link" href="/account?page={{ loop.index }}">{{ loop.index }}</a></li>
+                  {% else %}
+                  <li class="page-item"><a class="page-link text-info" href="/account?page={{ loop.index }}">{{ loop.index }}</a></li>
+                  {% endif %}
+                  {% endfor %}
+
+                  {% if page < pages %}
+                  <li class="page-item"><a class="page-link text-info" href="/account?page={{ page + 1}}">Next</a></li>
+                  {% else %}
+                  <li class="page-item disabled"><a class="page-link text-secondary">Next</a></li>
+                  {% endif %}
+                  </ul>
+              </nav>
+              {% endif %}
+          </div>
+      </div>
+
+      <div class="tab-pane fade" id="following" role="tabpanel" aria-labelledby="contact-tab">
+      <div class="mt-4">{{ flash|raw }}</div>
+        <div class="mt-5">
+            <div class="row">
+                <div class="col-lg-8">
+                    {% if following %}
+                    <ul class="list-group">
+                       {% for item in following %}
+                       <li class="list-group-item d-flex justify-content-between">
+                          <a class="text-info" style="text-decoration:none;" href="/profile/{{ item.username }}?page=1"><img src="../../user_images/{{ item.picture }}"
+                          class="rounded-circle mr-2" style="height:29px; width:29px;" />
+                          {{ item.username }}</a>
+                          <a class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Are you sure you want to unfollow {{ item.username }}?')" href="/account?unfollow={{ item.username }}">Unfollow</a>
+                       </li>
+                       {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pl-3">You are not currently following anyone.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+      </div>
+
+
+      <div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="contact-tab">
+      <div class="mt-4">{{ flash|raw }}</div>
+        <div class="mt-5">
+            <div class="row">
+                <div class="col-lg-6">
+                    {% if followers %}
+                    <ul class="list-group">
+                       {% for item in followers %}
+                       <li class="list-group-item d-flex justify-content-between">
+                          <a class="text-info" style="text-decoration:none;" href="/profile/{{ item.username }}?page=1"><img src="../../user_images/{{ item.picture }}"
+                          class="rounded-circle mr-2" style="height:29px; width:29px;" />
+                          {{ item.username }}</a>
+                       </li>
+                       {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pl-3">You do not have any followers yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+$('a[data-toggle="tab"]').click(function (e) {
+    e.preventDefault();
+    $(this).tab('show');
+});
+
+$('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
+    var id = $(e.target).attr("href");
+    localStorage.setItem('selectedTab', id)
+});
+
+var selectedTab = localStorage.getItem('selectedTab');
+if (selectedTab != null) {
+    $('a[data-toggle="tab"][href="' + selectedTab + '"]').tab('show');
+}
+{% endblock %}
